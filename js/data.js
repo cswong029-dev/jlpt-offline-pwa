@@ -1,6 +1,14 @@
 (function (global) {
+  const scriptUrl =
+    typeof document !== 'undefined' && document.currentScript && document.currentScript.src
+      ? document.currentScript.src
+      : window.location.href;
+  const appBaseUrl = new URL('../', scriptUrl);
+
   async function fetchJson(path) {
-    const res = await fetch(path, { cache: 'no-cache' });
+    const clean = String(path || '').replace(/^\/+/, '');
+    const url = new URL(clean, appBaseUrl).toString();
+    const res = await fetch(url, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`無法載入 ${path}`);
     return res.json();
   }

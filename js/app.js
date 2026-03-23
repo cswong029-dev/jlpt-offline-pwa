@@ -1,5 +1,11 @@
 /* global JLPTStorage, JLPTData, JLPTTTS */
 (function () {
+  const scriptUrl =
+    typeof document !== 'undefined' && document.currentScript && document.currentScript.src
+      ? document.currentScript.src
+      : window.location.href;
+  const APP_BASE_URL = new URL('../', scriptUrl);
+
   function esc(s) {
     const d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
@@ -1181,7 +1187,9 @@
       return;
     }
     try {
-      const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+      const reg = await navigator.serviceWorker.register(new URL('sw.js', APP_BASE_URL), {
+        scope: APP_BASE_URL.pathname
+      });
       if (hint) hint.textContent = `離線快取：已註冊（${reg.active ? '作用中' : '啟用中'}）。`;
     } catch (err) {
       if (hint)
