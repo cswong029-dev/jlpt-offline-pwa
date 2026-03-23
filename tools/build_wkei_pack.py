@@ -64,6 +64,15 @@ def build_quizzes(items: list[dict]) -> list[dict]:
 
     quizzes: list[dict] = []
 
+    cloze_templates = [
+        "毎朝、（　）を確認してから学校へ行きます。",
+        "先生の説明を聞いて、（　）の使い方が分かりました。",
+        "週末にノートを見返して、（　）を復習しました。",
+        "この文では、文脈に合う（　）を選ぶ必要があります。",
+        "会話練習では、（　）を入れると意味が自然になります。",
+        "読解問題で（　）を見つけたら、前後の文を確認しましょう。",
+    ]
+
     def unique_sample(pool: list[str], correct: str, need: int) -> list[str]:
         out: list[str] = []
         seen = {correct}
@@ -102,7 +111,7 @@ def build_quizzes(items: list[dict]) -> list[dict]:
                     "choices": choices,
                     "correctIndex": ci,
                     "ttsQuestion": f"{word}",
-                    "explanation": f"正解為「{correct}」。釋義：{mean_line}",
+                    "explanation": f"正解為「{correct}」。中文釋義：{mean_line}",
                 }
             )
         if it.get("word"):
@@ -114,7 +123,7 @@ def build_quizzes(items: list[dict]) -> list[dict]:
             choices = [correct] + wrong[:3]
             random.shuffle(choices)
             ci = choices.index(correct)
-            sentence = f"昨日、私は（　）を見直しました。"
+            sentence = cloze_templates[(sum(ord(c) for c in correct) + len(correct)) % len(cloze_templates)]
             quizzes.append(
                 {
                     "id": f"{wid}-q-cloze",
@@ -126,7 +135,7 @@ def build_quizzes(items: list[dict]) -> list[dict]:
                     "choices": choices,
                     "correctIndex": ci,
                     "ttsQuestion": sentence.replace("（　）", correct),
-                    "explanation": f"正解是「{correct}」。此題為語彙文脈填空。",
+                    "explanation": f"正解是「{correct}」。請先讀完整句子，再用語意判斷最合適詞彙。",
                 }
             )
         elif it.get("meaning"):

@@ -36,6 +36,49 @@ def split_variants(title: str) -> list[str]:
     return parts[:2]
 
 
+EN2ZH_PHRASES = [
+    ("in order to", "為了"),
+    ("as soon as", "一...就..."),
+    ("must not", "不可以"),
+    ("must", "必須"),
+    ("should", "應該"),
+    ("can", "可以"),
+    ("only", "只有"),
+    ("just", "只是"),
+    ("because", "因為"),
+    ("if", "如果"),
+    ("when", "當...時"),
+    ("while", "在...期間"),
+    ("after", "在...之後"),
+    ("before", "在...之前"),
+    ("until", "直到"),
+    ("even if", "即使"),
+    ("even though", "雖然"),
+    ("seem", "看起來"),
+    ("look", "看起來"),
+    ("probably", "大概"),
+    ("I think", "我認為"),
+    ("to be", "是"),
+    ("and", "和"),
+    ("or", "或"),
+    ("not", "不"),
+]
+
+
+def en_to_zh_hint(text: str) -> str:
+    s = norm(text)
+    if not s:
+        return ""
+    out = s
+    for en, zh in EN2ZH_PHRASES:
+        out = re.sub(rf"\b{re.escape(en)}\b", zh, out, flags=re.IGNORECASE)
+    out = out.replace("~", "")
+    out = re.sub(r"\s*;\s*", "；", out)
+    out = re.sub(r"\s*,\s*", "、", out)
+    out = re.sub(r"\s+", " ", out).strip()
+    return out
+
+
 def example_sentence(token: str, variant_i: int) -> str:
     t = token.strip()
 
@@ -67,13 +110,8 @@ def example_sentence(token: str, variant_i: int) -> str:
     return variants[variant_i % len(variants)]
 
 
-def zh_like_explanation(title: str, meaning_en: str) -> str:
-    # We cannot translate offline reliably in this environment, so we provide
-    # a Chinese wrapper and keep the original English meaning for semantics.
-    meaning_en = norm(meaning_en)
-    if not meaning_en:
-        return f"用法重點：{title}（英文釋義未提供）"
-    return f"用法重點：{title}（英文：{meaning_en}）"
+def zh_summary(title: str, meaning_en: str) -> str:
+    return f"用法重點：{title}。建議透過例句觀察語氣、接續與使用情境。"
 
 
 def main() -> None:
@@ -112,20 +150,14 @@ def main() -> None:
             if not tk:
                 continue
             ja = example_sentence(tk, i)
-            examples.append(
-                {
-                    "ja": ja,
-                    "reading": reading,
-                    "zh": f"例句翻譯（參考）：{meaning}" if meaning else "例句翻譯（參考）",
-                }
-            )
+            examples.append({
+                "ja": ja,
+                "reading": reading,
+                "zh": f"例句翻譯（參考）：{en_to_zh_hint(meaning) or '請依句意理解此文法功能'}",
+            })
 
-        summary = zh_like_explanation(title, meaning)
-        body_parts = []
-        if source:
-            body_parts.append(f"來源：{source}")
-        body_parts.append("使用提示：先理解句意，再練習把該文法套入相似語境。")
-        body = "\n".join(body_parts)
+        summary = zh_summary(title, meaning)
+        body = "使用提示：先看前後文，再判斷這個文法在句中的功能（敘述、推測、限制、條件、對比等）。"
 
         items.append(
             {
