@@ -360,3 +360,22 @@ input[type='range'] {
   background: var(--accent-soft);
   border-radius: 0 8px 8px 0;
 }
+
+.audio-icon-btn {
+  margin-left: 0.25rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.audio-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

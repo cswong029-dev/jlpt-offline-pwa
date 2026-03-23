@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-"""由 builtin-grammar/grammar.json 產生 JLPT 式文法選句題（quizzes.json）。"""
+"""由 builtin-grammar/grammar.json 產生 JLPT 式文法填空題（quizzes.json）。"""
 from __future__ import annotations
 
 import json
 import random
+import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -19,6 +20,7 @@ def main() -> None:
     items = data.get("items") or []
 
     pool_by_lv: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    token_pool_by_lv: dict[str, list[str]] = defaultdict(list)
     for g in items:
         gid = g["id"]
         lv = g["level"]
@@ -26,6 +28,10 @@ def main() -> None:
             ja = (ex.get("ja") or "").strip()
             if ja:
                 pool_by_lv[lv].append((gid, ja))
+        title = (g.get("title") or "").strip()
+        token = re.split(r"[／・（(\\s]", title)[0].strip()
+        if token:
+            token_pool_by_lv[lv].append(token)
 
     all_ja = [(g["id"], g["level"], ex.get("ja", "").strip()) for g in items for ex in (g.get("examples") or [])]
     all_ja = [(a, b, c) for a, b, c in all_ja if c]
@@ -39,14 +45,22 @@ def main() -> None:
             ja = (ex.get("ja") or "").strip()
             if not ja:
                 continue
-            wrong_src = [t[1] for t in pool_by_lv[lv] if t[0] != g["id"] and t[1] != ja]
-            if len(wrong_src) < 3:
-                wrong_src = [x[2] for x in all_ja if x[0] != g["id"] and x[2] != ja]
-            random.shuffle(wrong_src)
+            token = re.split(r"[／・（(\\s]", title)[0].strip()
+            sent = ja
+            if token and token in sent:
+                sent = sent.replace(token, "（　）", 1)
+            elif "。" in sent:
+                sent = sent.replace("。", "（　）。", 1)
+            else:
+                sent = sent + "（　）"
+
             wrong = []
-            seenw = {ja}
-            for w in wrong_src:
-                if w in seenw:
+            pool = token_pool_by_lv.get(lv, [])
+            random.shuffle(pool)
+            seenw = {token}
+            for w in pool:
+                w = (w or "").strip()
+                if not w or w in seenw:
                     continue
                 seenw.add(w)
                 wrong.append(w)
@@ -55,13 +69,10 @@ def main() -> None:
             pad = 0
             while len(wrong) < 3:
                 pad += 1
-                w = ja.replace("。", "…") + "（誤" + str(pad) + "）"
-                if w not in seenw:
-                    seenw.add(w)
-                    wrong.append(w)
-            choices = [ja] + wrong[:3]
+                wrong.append(f"誤用{pad}")
+            choices = [token] + wrong[:3]
             random.shuffle(choices)
-            ci = choices.index(ja)
+            ci = choices.index(token)
             zh = ex.get("zh") or ""
             qn += 1
             quizzes.append(
@@ -71,11 +82,11 @@ def main() -> None:
                     "section": "grammar",
                     "jlptPart": "文法・文の文法形式",
                     "type": "mc",
-                    "question": f"（文法・文の文法形式）【{title}】請選出正確的句子。",
+                    "question": f"（文法・文の文法形式）次の文の（　）に入る最も適切な文法はどれですか。\n{sent}",
                     "choices": choices,
                     "correctIndex": ci,
-                    "ttsQuestion": ja,
-                    "explanation": f"正解反映「{title}」的用法。例句說明：{zh}",
+                    "ttsQuestion": sent.replace("（　）", token),
+                    "explanation": f"正解是「{token}」。{zh}",
                 }
             )
 

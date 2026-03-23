@@ -375,38 +375,24 @@
       <section class="panel">
         <h2>單字卡 <span class="muted" style="font-weight:400;">(${state.vocabIndex + 1}/${list.length})</span></h2>
         ${levelStripHtml('vocab')}
-        <div class="vocab-main">${esc(main)}</div>
+        <div class="vocab-main">${esc(main)} <button type="button" class="audio-icon-btn" data-act="play" data-src="${esc(
+      aw
+    )}" data-tts="${esc((it.reading || it.word || '').trim())}" title="播放讀音" aria-label="播放讀音">🔊</button></div>
         ${sub ? `<div class="vocab-sub">${esc(sub)}</div>` : ''}
         <p><strong>${esc(it.meaning || '')}</strong> <span class="muted">${esc(it.pos || '')}</span></p>
-        ${
-          it.meaningEn && it.meaning && it.meaningEn !== it.meaning
-            ? `<p class="muted" style="font-size:0.85rem;">原文釋義（英）：${esc(it.meaningEn)}</p>`
-            : ''
-        }
         <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
-          <p class="reading-passage">${esc(ex1.ja || '')}</p>
+          <p class="reading-passage">${esc(ex1.ja || '')} <button type="button" class="audio-icon-btn" data-act="play" data-src="${esc(
+      ex1.audio || ''
+    )}" data-tts="${esc((ex1.reading || ex1.ja || '').trim())}" ${!ex1.ja && !ex1.reading ? 'disabled' : ''} title="播放例句1" aria-label="播放例句1">🔊</button></p>
           ${prefs.furigana ? `<p class="reading-ruby">${esc(ex1.reading || '')}</p>` : ''}
           <p class="muted">${esc(ex1.zh || '')}</p>
-          <div class="btn-row">
-            <button type="button" class="btn" data-act="play" data-src="${esc(ex1.audio || '')}" data-tts="${esc(
-      (ex1.reading || ex1.ja || '').trim()
-    )}" ${!ex1.ja && !ex1.reading ? 'disabled' : ''}>例句1（MP3 或語音）</button>
-          </div>
         </div>
         <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
-          <p class="reading-passage">${esc(ex2.ja || '')}</p>
+          <p class="reading-passage">${esc(ex2.ja || '')} <button type="button" class="audio-icon-btn" data-act="play" data-src="${esc(
+      ex2.audio || ''
+    )}" data-tts="${esc((ex2.reading || ex2.ja || '').trim())}" ${!ex2.ja && !ex2.reading ? 'disabled' : ''} title="播放例句2" aria-label="播放例句2">🔊</button></p>
           ${prefs.furigana ? `<p class="reading-ruby">${esc(ex2.reading || '')}</p>` : ''}
           <p class="muted">${esc(ex2.zh || '')}</p>
-          <div class="btn-row">
-            <button type="button" class="btn" data-act="play" data-src="${esc(ex2.audio || '')}" data-tts="${esc(
-      (ex2.reading || ex2.ja || '').trim()
-    )}" ${!ex2.ja && !ex2.reading ? 'disabled' : ''}>例句2（MP3 或語音）</button>
-          </div>
-        </div>
-        <div class="btn-row">
-          <button type="button" class="btn" data-act="play" data-src="${esc(aw)}" data-tts="${esc(
-      (it.reading || it.word || '').trim()
-    )}">單字讀音（MP3 或語音）</button>
         </div>
         <div class="btn-row">
           <button type="button" class="btn" data-act="vocab-prev">上一個</button>
@@ -489,25 +475,19 @@
           branch === 'vocab'
             ? `<div class="panel" style="box-shadow:none;margin:0.5rem 0;">
           <p class="muted" style="margin:0 0 0.35rem;"><strong>例句1</strong></p>
-          <p class="reading-passage">${esc(vocabEx[0].ja || '')}</p>
+          <p class="reading-passage">${esc(vocabEx[0].ja || '')} <button type="button" class="audio-icon-btn" data-act="play" data-src="${esc(
+                vocabEx[0].audio || ''
+              )}" data-tts="${esc((vocabEx[0].reading || vocabEx[0].ja || '').trim())}" ${!vocabEx[0].ja && !vocabEx[0].reading ? 'disabled' : ''} title="播放例句1" aria-label="播放例句1">🔊</button></p>
           <p class="reading-ruby">${esc(vocabEx[0].reading || '')}</p>
           <p class="muted">${esc(vocabEx[0].zh || '')}</p>
-          <div class="btn-row">
-            <button type="button" class="btn" data-act="play" data-src="${esc(vocabEx[0].audio || '')}" data-tts="${esc(
-                (vocabEx[0].reading || vocabEx[0].ja || '').trim()
-              )}" ${!vocabEx[0].ja && !vocabEx[0].reading ? 'disabled' : ''}>聽例句1（MP3 或語音）</button>
-          </div>
         </div>
         <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
           <p class="muted" style="margin:0 0 0.35rem;"><strong>例句2</strong></p>
-          <p class="reading-passage">${esc(vocabEx[1].ja || '')}</p>
+          <p class="reading-passage">${esc(vocabEx[1].ja || '')} <button type="button" class="audio-icon-btn" data-act="play" data-src="${esc(
+                vocabEx[1].audio || ''
+              )}" data-tts="${esc((vocabEx[1].reading || vocabEx[1].ja || '').trim())}" ${!vocabEx[1].ja && !vocabEx[1].reading ? 'disabled' : ''} title="播放例句2" aria-label="播放例句2">🔊</button></p>
           <p class="reading-ruby">${esc(vocabEx[1].reading || '')}</p>
           <p class="muted">${esc(vocabEx[1].zh || '')}</p>
-          <div class="btn-row">
-            <button type="button" class="btn" data-act="play" data-src="${esc(vocabEx[1].audio || '')}" data-tts="${esc(
-                (vocabEx[1].reading || vocabEx[1].ja || '').trim()
-              )}" ${!vocabEx[1].ja && !vocabEx[1].reading ? 'disabled' : ''}>聽例句2（MP3 或語音）</button>
-          </div>
         </div>`
             : ''
         }

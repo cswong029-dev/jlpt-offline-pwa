@@ -60,6 +60,7 @@ def build_quizzes(items: list[dict]) -> list[dict]:
     }
     all_readings = [x["reading"] for x in items if x.get("reading")]
     all_meanings = [x["meaning"] for x in items if x.get("meaning")]
+    words_by_lv = {lv: [x["word"] for x in lst if x.get("word")] for lv, lst in by_level.items()}
 
     quizzes: list[dict] = []
 
@@ -102,6 +103,30 @@ def build_quizzes(items: list[dict]) -> list[dict]:
                     "correctIndex": ci,
                     "ttsQuestion": f"{word}",
                     "explanation": f"正解為「{correct}」。釋義：{mean_line}",
+                }
+            )
+        if it.get("word"):
+            correct = it["word"]
+            pool = words_by_lv.get(lv, [])
+            wrong = unique_sample(pool, correct, 3)
+            if len(wrong) < 3:
+                wrong.extend(unique_sample([x["word"] for x in items if x.get("word")], correct, 3 - len(wrong)))
+            choices = [correct] + wrong[:3]
+            random.shuffle(choices)
+            ci = choices.index(correct)
+            sentence = f"昨日、私は（　）を見直しました。"
+            quizzes.append(
+                {
+                    "id": f"{wid}-q-cloze",
+                    "level": lv,
+                    "section": "vocab",
+                    "jlptPart": "語彙・文脈",
+                    "type": "mc",
+                    "question": f"（語彙・文脈）次の文の（　）に入る最も適切な語はどれですか。\n{sentence}",
+                    "choices": choices,
+                    "correctIndex": ci,
+                    "ttsQuestion": sentence.replace("（　）", correct),
+                    "explanation": f"正解是「{correct}」。此題為語彙文脈填空。",
                 }
             )
         elif it.get("meaning"):
