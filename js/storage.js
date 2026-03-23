@@ -55,7 +55,8 @@
         readingShowZh: true,
         enabledPacks: null,
         listeningDelayMs: 800,
-        quizBranch: 'vocab'
+        quizBranch: 'vocab',
+        quizTrainType: 'all'
       },
       favorites: { grammar: [], vocab: [], quiz: [], reading: [], listening: [] },
       mistakes: { quiz: {} },

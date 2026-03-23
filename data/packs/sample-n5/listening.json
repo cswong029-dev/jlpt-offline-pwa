@@ -5,13 +5,68 @@
     {
       "id": "sample-n5-l-001",
       "level": "N5",
-      "title": "範例聽力題（無音檔）",
+      "title": "N5 聽力：天氣與服裝",
       "audioPrompt": "",
-      "ttsQuestion": "きょうはあついです。",
-      "question": "此為聽力擴充題占位：有音檔時請填 audioPrompt 路徑，即可按「播放題目音檔」。下列何者正確？",
-      "choices": ["此為示範正解", "僅為占位選項", "請換成真題庫", "可刪除此題"],
+      "ttsQuestion": "きょうはあついです。うすいシャツをきます。",
+      "question": "今天很熱。說話者要怎麼穿？",
+      "choices": ["穿薄襯衫", "穿厚外套", "戴圍巾", "下雨所以帶傘"],
       "correctIndex": 0,
-      "explanation": "正式題庫請在擴充包內提供 MP3／M4A 等，並將路徑寫入 audioPrompt（相對網站根目錄）。"
+      "explanation": "句中說「很熱、穿薄襯衫」，所以答案是穿薄襯衫。"
+    },
+    {
+      "id": "sample-n5-l-002",
+      "level": "N5",
+      "title": "N5 聽力：時間安排",
+      "audioPrompt": "",
+      "ttsQuestion": "あしたのあさ、しちじにえきでともだちにあいます。",
+      "question": "說話者明天早上幾點在車站見朋友？",
+      "choices": ["六點", "七點", "八點", "九點"],
+      "correctIndex": 1,
+      "explanation": "題幹有「しちじにえきで...あいます」，是七點。"
+    },
+    {
+      "id": "sample-n5-l-003",
+      "level": "N5",
+      "title": "N5 聽力：購物需求",
+      "audioPrompt": "",
+      "ttsQuestion": "ぎゅうにゅうがありません。かえりにスーパーでかいます。",
+      "question": "說話者回家前要買什麼？",
+      "choices": ["麵包", "牛奶", "水果", "咖啡"],
+      "correctIndex": 1,
+      "explanation": "句中明確提到牛奶沒有了，回程要去超市買。"
+    },
+    {
+      "id": "sample-n5-l-004",
+      "level": "N5",
+      "title": "N5 聽力：交通方式",
+      "audioPrompt": "",
+      "ttsQuestion": "がっこうまでバスでいきます。でんしゃはつかいません。",
+      "question": "說話者如何去學校？",
+      "choices": ["搭電車", "搭公車", "騎腳踏車", "走路"],
+      "correctIndex": 1,
+      "explanation": "說話者用公車去學校，且明確說不搭電車。"
+    },
+    {
+      "id": "sample-n5-l-005",
+      "level": "N5",
+      "title": "N5 聽力：飲食偏好",
+      "audioPrompt": "",
+      "ttsQuestion": "わたしはさかながすきです。でも、にくはあまりたべません。",
+      "question": "說話者的飲食偏好是什麼？",
+      "choices": ["喜歡肉，常吃肉", "不喜歡魚", "喜歡魚，少吃肉", "什麼都不吃"],
+      "correctIndex": 2,
+      "explanation": "句子指出喜歡魚，但肉不太吃。"
+    },
+    {
+      "id": "sample-n5-l-006",
+      "level": "N5",
+      "title": "N5 聽力：地點確認",
+      "audioPrompt": "",
+      "ttsQuestion": "としょかんはえきのひだりです。ぎんこうのとなりです。",
+      "question": "圖書館在哪裡？",
+      "choices": ["車站右邊、郵局旁", "車站左邊、銀行旁", "銀行裡面", "公園對面"],
+      "correctIndex": 1,
+      "explanation": "題幹說圖書館在車站左邊、銀行旁邊。"
     }
   ]
 }

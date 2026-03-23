@@ -36,6 +36,108 @@
 
   const ALL_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
+  function isPlaceholderGrammar(it) {
+    const summary = (it.summary || '').trim();
+    const body = (it.body || '').trim();
+    const ex = Array.isArray(it.examples) ? it.examples : [];
+    const exJa = ex[0] ? (ex[0].ja || '').trim() : '';
+    return summary.startsWith('文法重點：') && !body && (/^【.+】$/.test(exJa) || !exJa);
+  }
+
+  function grammarSummaryZh(it) {
+    if (!isPlaceholderGrammar(it)) return (it.summary || '').trim();
+    const title = (it.title || '').trim();
+    return `「${title}」常用於句型表達，建議搭配例句反覆朗讀，理解語氣與使用情境。`;
+  }
+
+  function grammarBodyZh(it) {
+    const body = (it.body || '').trim();
+    if (body) return body;
+    const title = (it.title || '').trim();
+    return `用法重點：${title}\n建議練習：先看句子語境，再判斷語氣與句末形式是否自然。`;
+  }
+
+  function grammarExamplesSafe(it) {
+    const ex = Array.isArray(it.examples) ? it.examples : [];
+    const cleaned = ex.filter((e) => {
+      const ja = (e.ja || '').trim();
+      return ja && !/^【.+】$/.test(ja);
+    });
+    if (cleaned.length) return cleaned;
+    const title = (it.title || '').trim() || 'この文法';
+    return [
+      {
+        ja: `先生に「${title}」の使い方を確認しました。`,
+        reading: `せんせいに「${title}」のつかいかたをかくにんしました。`,
+        zh: `我向老師確認了「${title}」的用法。`,
+        audioPhrase: ''
+      },
+      {
+        ja: `会話では場面に合わせて「${title}」を使います。`,
+        reading: `かいわではばめんにあわせて「${title}」をつかいます。`,
+        zh: `在會話中會依情境使用「${title}」。`,
+        audioPhrase: ''
+      }
+    ];
+  }
+
+  function estimatePitch(reading) {
+    const r = String(reading || '').trim();
+    if (!r) return '重音：未標註';
+    const moraLike = r.replace(/[ゃゅょぁぃぅぇぉャュョァィゥェォー]/g, '').length;
+    if (moraLike <= 1) return '重音：推測 單拍詞';
+    if (moraLike === 2) return '重音：推測 頭高型(1)';
+    return '重音：推測 平板型(0)';
+  }
+
+  function pitchText(it) {
+    const explicit = (it.pitchAccent || it.accent || it.pitch || '').toString().trim();
+    if (explicit) return `重音：${explicit}`;
+    return estimatePitch(it.reading || it.word || '');
+  }
+
+  function quizTrainType() {
+    return JLPTStorage.getPrefs().quizTrainType || 'all';
+  }
+
+  function isAdverbQuiz(q) {
+    const txt = `${q.question || ''} ${q.jlptPart || ''}`.toLowerCase();
+    if (txt.includes('副詞') || txt.includes('adverb')) return true;
+    const term = extractQuotedTerm(q.question);
+    if (!term) return false;
+    const v = state.merged.vocab.find((x) => (x.word || '').trim() === term);
+    const pos = ((v && v.pos) || '').toLowerCase();
+    return pos.includes('副詞') || pos.includes('adverb');
+  }
+
+  function isSituationQuiz(q) {
+    const txt = `${q.question || ''} ${q.jlptPart || ''}`.toLowerCase();
+    return txt.includes('文脈') || txt.includes('場面') || txt.includes('状況') || txt.includes('事態');
+  }
+
+  function sentenceTranslationHint(q, branch) {
+    const sentence = (q.ttsQuestion || q.question || '').split('\n').pop().trim();
+    if (!sentence) return '';
+    if (branch === 'vocab') {
+      const term = extractQuotedTerm(q.question);
+      const v = state.merged.vocab.find((x) => (x.word || '').trim() === term);
+      if (v && (v.exampleZh || v.meaning)) {
+        return v.exampleZh || `關鍵詞「${term}」：${v.meaning}`;
+      }
+      return `句子翻譯（參考）：請先判斷句中關鍵詞，再依語境理解整句。`;
+    }
+    const ci = Number(q.correctIndex);
+    const token = (q.choices && q.choices[ci]) || '';
+    const tokenStr = String(token).trim();
+    const g = state.merged.grammar.find((x) => {
+      const t = (x.title || '').trim();
+      if (!t || !tokenStr) return false;
+      return t === tokenStr || t.includes(tokenStr);
+    });
+    if (g) return `句子翻譯（參考）：此句重點文法「${tokenStr}」表示 ${grammarSummaryZh(g)}`;
+    return `句子翻譯（參考）：請依語境判斷文法語氣與句末形式。`;
+  }
+
   function getLevelsSetFor(section) {
     const lf = JLPTStorage.getPrefs().levelFilters || {};
     const arr = lf[section];
@@ -84,6 +186,9 @@
     let list = JLPTData.filterByLevels(state.merged.quizzes, getLevelsSetFor('quiz'));
     const branch = JLPTStorage.getPrefs().quizBranch || 'vocab';
     list = list.filter((q) => (q.section || 'vocab') === branch);
+    const t = quizTrainType();
+    if (t === 'adverb') list = list.filter(isAdverbQuiz);
+    if (t === 'situation') list = list.filter(isSituationQuiz);
     if (state.quizMistakesOnly) {
       const ids = new Set(JLPTStorage.getMistakeQuizIds());
       list = list.filter((q) => ids.has(q.id));
@@ -229,7 +334,7 @@
       <li>
         <button type="button" class="item-btn" data-act="grammar-open" data-id="${esc(it.id)}">
           <span class="tag">${esc(it.level)}</span>${esc(it.title)}
-          <div class="muted" style="margin-top:0.25rem;font-size:0.85rem;">${esc(it.summary || '')}</div>
+          <div class="muted" style="margin-top:0.25rem;font-size:0.85rem;">${esc(grammarSummaryZh(it))}</div>
         </button>
       </li>`
       )
@@ -245,7 +350,7 @@
 
   function grammarDetailHtml(it) {
     const fav = JLPTStorage.isFavorite('grammar', it.id);
-    const ex = (it.examples || [])
+    const ex = grammarExamplesSafe(it)
       .map((e) => {
         const ap = e.audioPhrase && String(e.audioPhrase).trim();
         const ttsLine = (e.reading || e.ja || '').trim();
@@ -264,14 +369,14 @@
         </div>`;
       })
       .join('');
-    const bodyParas = (it.body || '')
+    const bodyParas = grammarBodyZh(it)
       .split('\n')
       .filter(Boolean)
       .map((p) => `<p>${esc(p)}</p>`)
       .join('');
     return `
       <h2><span class="tag">${esc(it.level)}</span>${esc(it.title)}</h2>
-      <p class="muted">${esc(it.summary || '')}</p>
+      <p class="muted">${esc(grammarSummaryZh(it))}</p>
       <div class="btn-row">
         <button type="button" class="btn ${fav ? 'primary' : ''}" data-act="fav-grammar" data-id="${esc(
       it.id
@@ -380,6 +485,7 @@
     )}" data-tts="${esc((it.reading || it.word || '').trim())}" title="播放讀音" aria-label="播放讀音">🔊</button></div>
         ${sub ? `<div class="vocab-sub">${esc(sub)}</div>` : ''}
         <p><strong>${esc(it.meaning || '')}</strong> <span class="muted">${esc(it.pos || '')}</span></p>
+        <p class="muted" style="margin-top:-0.25rem;">${esc(pitchText(it))}</p>
         <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
           <p class="reading-passage">${esc(ex1.ja || '')} <button type="button" class="audio-icon-btn" data-act="play" data-src="${esc(
       ex1.audio || ''
@@ -422,6 +528,8 @@
     const list = filteredQuizzes();
     const q = currentQuiz();
     const modeLabel = state.quizMistakesOnly ? '錯題模式' : '全部';
+    const trainType = quizTrainType();
+    const trainLabel = trainType === 'adverb' ? '副詞訓練' : trainType === 'situation' ? '事態訓練' : '綜合';
     const branch = JLPTStorage.getPrefs().quizBranch || 'vocab';
     const branchLabel =
       branch === 'grammar' ? '言語知識（文法）' : '言語知識（文字・語彙）';
@@ -456,12 +564,15 @@
       <section class="panel">
         <h2>模擬測驗 · ${esc(branchLabel)}</h2>
         ${levelStripHtml('quiz')}
-        <p class="muted" style="margin:0 0 0.5rem;">${jlptLine}${esc(modeLabel)} · 第 ${state.quizPos + 1} / ${
+        <p class="muted" style="margin:0 0 0.5rem;">${jlptLine}${esc(modeLabel)} · ${esc(trainLabel)} · 第 ${state.quizPos + 1} / ${
       state.quizOrder.length
     } 題</p>
         <div class="btn-row" style="margin-top:0;">
           <button type="button" class="btn ${branch === 'vocab' ? 'primary' : ''}" data-act="quiz-branch-vocab">語彙（読み・語彙）</button>
           <button type="button" class="btn ${branch === 'grammar' ? 'primary' : ''}" data-act="quiz-branch-grammar">文法（文の形式）</button>
+          <button type="button" class="btn ${trainType === 'all' ? 'primary' : ''}" data-act="quiz-train-all">綜合</button>
+          <button type="button" class="btn ${trainType === 'adverb' ? 'primary' : ''}" data-act="quiz-train-adverb">副詞</button>
+          <button type="button" class="btn ${trainType === 'situation' ? 'primary' : ''}" data-act="quiz-train-situation">事態</button>
           <button type="button" class="btn" data-act="quiz-toggle-mistakes">${state.quizMistakesOnly ? '改為全部' : '只練錯題'}</button>
           <button type="button" class="btn" data-act="quiz-shuffle">重新洗牌</button>
         </div>
@@ -471,6 +582,7 @@
     }>聽題幹（日文語音）</button>
         </div>
         <p class="reading-passage" style="margin-top:0.75rem;">${esc(q.question)}</p>
+        <p class="muted">${esc(sentenceTranslationHint(q, branch))}</p>
         ${
           branch === 'vocab'
             ? `<div class="panel" style="box-shadow:none;margin:0.5rem 0;">
@@ -796,6 +908,24 @@
       }
       if (act === 'quiz-branch-grammar') {
         JLPTStorage.setPrefs({ quizBranch: 'grammar' });
+        rebuildQuizOrder();
+        renderMain();
+        return;
+      }
+      if (act === 'quiz-train-all') {
+        JLPTStorage.setPrefs({ quizTrainType: 'all' });
+        rebuildQuizOrder();
+        renderMain();
+        return;
+      }
+      if (act === 'quiz-train-adverb') {
+        JLPTStorage.setPrefs({ quizTrainType: 'adverb' });
+        rebuildQuizOrder();
+        renderMain();
+        return;
+      }
+      if (act === 'quiz-train-situation') {
+        JLPTStorage.setPrefs({ quizTrainType: 'situation' });
         rebuildQuizOrder();
         renderMain();
         return;
