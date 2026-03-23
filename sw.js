@@ -1,6 +1,6 @@
 /* 更新擴充包或核心檔後，請 bump 版本以刷新快取 */
 /* wkei-vocab 大型 JSON 不預載，首次連線後由 fetch 寫入快取 */
-const CACHE_NAME = 'jlpt-offline-v10';
+const CACHE_NAME = 'jlpt-offline-v11';
 
 const CORE_URLS = [
   './index.html',
@@ -41,6 +41,20 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+
+  // JSON data should prefer network so content updates appear quickly.
+  if (url.pathname.includes('/data/') && url.pathname.endsWith('.json')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const copy = res.clone();
+          if (res.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
