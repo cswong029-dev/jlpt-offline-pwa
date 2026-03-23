@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "packId": "sample-n5",
+  "items": [
+    {
+      "id": "sample-n5-v-001",
+      "level": "N5",
+      "word": "学生",
+      "reading": "がくせい",
+      "meaningEn": "student",
+      "meaning": "學生",
+      "pos": "名詞",
+      "audioWord": "",
+      "audioExample": "",
+      "exampleJa": "私は学生です。",
+      "exampleReading": "わたしはがくせいです。",
+      "exampleZh": "我是學生。"
+    },
+    {
+      "id": "sample-n5-v-002",
+      "level": "N5",
+      "word": "本",
+      "reading": "ほん",
+      "meaningEn": "book",
+      "meaning": "書；本",
+      "pos": "名詞",
+      "audioWord": "",
+      "audioExample": "",
+      "exampleJa": "本を読みます。",
+      "exampleReading": "ほんをよみます。",
+      "exampleZh": "我讀書。"
+    }
+  ]
+}

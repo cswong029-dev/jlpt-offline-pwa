@@ -1,0 +1,86 @@
+JLPT 離線自學 PWA — 使用說明
+================================
+
+資料來源（已內建轉換）
+----------------------
+「JLPT 單字＋測驗（jlpt-vocab-api / wkei）」擴充包由本機
+jlpt-vocab-api-main 專案之 data-source/db/n1.json～n5.json 經
+tools/build_wkei_pack.py 產生。若你更新該 repo 的 JSON，請在
+jlpt-offline-pwa 目錄執行：
+  python tools/build_wkei_pack.py
+再 bump sw.js 的 CACHE_NAME 並重新整理網頁。
+釋義預設為英文；請執行下方翻譯腳本改為繁中（會保留 meaningEn）。
+例句與 MP3 音檔可日後自行補上；目前介面在無 MP3 時會用裝置「日文語音
+（TTS）」朗讀假名／句子（完全離線時請先在系統下載日文語音）。
+
+繁中釋義（約 7800+ 筆唯一英文）
+--------------------------------
+  pip install -r tools/requirements-tools.txt
+  python tools/translate_wkei_to_zh_tw.py          # 全部（耗時約 20～40 分鐘）
+  python tools/translate_wkei_to_zh_tw.py --resume   # 中斷後接續
+翻譯對照表快取：data/packs/wkei-vocab/_meaning_en_to_zh.json
+完成後請 bump sw.js 的 CACHE_NAME 並重新整理網頁。
+
+（可選）本機批次產生 MP3：可安裝 edge-tts，自行寫迴圈對 reading／例句
+呼叫 edge-tts，再把路徑填入 JSON 的 audioWord、audioPrompt 等欄位。
+
+為何需要本機網址
+----------------
+Service Worker（離線快取）在 file:// 多數瀏覽器不啟用。請用下列其一開啟：
+
+1) Python（專案根目錄 jlpt-offline-pwa）
+   python -m http.server 8080
+   電腦瀏覽器開 http://localhost:8080/
+
+2) iPhone / iPad（同一 Wi‑Fi）
+   查電腦區網 IP（例如 192.168.1.10），手機 Safari 開
+   http://192.168.1.10:8080/
+   然後「分享」→「加入主畫面」。
+
+3) 將整個 jlpt-offline-pwa 資料夾同步到支援靜態網頁的雲端／NAS，以 https 網址開啟亦可。
+
+外出／任何地點使用（推薦）
+--------------------------
+手機在外面無法連你家的 localhost 或 192.168.*。要隨時用 Safari 開、並讓
+Service Worker 正常離線快取，需要 **https://** 的公開網址（免費方案即可）。
+
+共通準備：上傳時請把「jlpt-offline-pwa 裡面的內容」當成網站根目錄
+（index.html、sw.js、css/、js/、data/ 在同一層），不要多包一層資料夾。
+
+A) Netlify Drop（步驟最少）
+   1. 瀏覽器開 https://app.netlify.com/drop
+   2. 登入後，把「jlpt-offline-pwa 整個資料夾」拖進去（或壓成 zip 上傳）。
+   3. 會得到 https://某名稱.netlify.app
+   4. iPhone Safari 開該網址 → 分享 → 加入主畫面。
+   5. 之後可先開一次讓快取下載約數 MB 資料，再關飛行模式測離線。
+
+B) Cloudflare Pages
+   1. https://pages.cloudflare.com 建立專案，連 Git 或直接上傳資料夾。
+   2. 建置設定：若純靜態、根目錄已是 index.html，可不需建置指令；
+      輸出目錄填「/」或專案根（依介面說明）。
+   3. 部署完成後用提供的 *.pages.dev 網址，同樣「加入主畫面」。
+
+C) GitHub Pages
+   1. 新建一個 repository，只放 jlpt-offline-pwa 內的檔案在預設分支根目錄
+      （不要外層再套一層 jlpt-offline-pwa 當唯一子目錄，否則路徑會錯）。
+   2. Settings → Pages → Source 選該分支／根目錄。
+   3. 網址形如 https://你的帳號.github.io/倉庫名/
+   4. 本專案使用相對路徑，一般可直接運作；若你改過絕對路徑才需額外調整。
+
+注意事項
+--------
+• 公開網址代表「知道連結的人都能開」（僅瀏覽，看不到你手機裡的備份檔）。
+  若需隱私，可改用付費平台的存取控管，或只用家中區網 IP。
+• 第一次開啟會下載單字與測驗 JSON（約數 MB），建議在 Wi‑Fi 下開過一次再出門。
+• 更新內容後請 bump sw.js 的 CACHE_NAME，使用者那端需重新整理一兩次才會換新快取。
+
+擴充包
+------
+1. 在 data/packs/ 新增子資料夾，放入 vocab.json、grammar.json、quizzes.json、reading.json（可省略沒有的檔案）。
+2. 編輯 data/registry.json 的 packs 陣列，加入一筆並指到相對路徑。
+3. 音檔放 audio/packs/<packId>/，JSON 內用相對於網站根目錄的路徑（見範例）。
+4. 修改 sw.js 頂端 CACHE_NAME（例如 jlpt-offline-v4 → jlpt-offline-v5）後重新整理，以強制更新快取。
+
+備份
+----
+設定頁「匯出資料」可下載收藏、錯題、簡化複習狀態；換裝置後用「匯入資料」還原。

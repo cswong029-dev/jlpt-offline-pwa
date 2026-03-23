@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "packs": [
+    {
+      "id": "builtin-grammar",
+      "title": "內建文法（繁中說明＋JLPT式選句）",
+      "levels": ["N5", "N4", "N3", "N2", "N1"],
+      "basePath": "data/packs/builtin-grammar",
+      "files": {
+        "grammar": "grammar.json",
+        "quizzes": "quizzes.json"
+      },
+      "features": {
+        "listening": false
+      }
+    },
+    {
+      "id": "sample-n5",
+      "title": "範例：N5 迷你包",
+      "levels": ["N5"],
+      "basePath": "data/packs/sample-n5",
+      "files": {
+        "vocab": "vocab.json",
+        "grammar": "grammar.json",
+        "quizzes": "quizzes.json",
+        "reading": "reading.json",
+        "listening": "listening.json"
+      },
+      "features": {
+        "listening": true
+      }
+    },
+    {
+      "id": "graded-reading",
+      "title": "分級閱讀（篇幅隨 N5→N1 遞增）",
+      "levels": ["N5", "N4", "N3", "N2", "N1"],
+      "basePath": "data/packs/graded-reading",
+      "files": {
+        "reading": "reading.json"
+      },
+      "features": {
+        "listening": false
+      }
+    },
+    {
+      "id": "wkei-vocab",
+      "title": "JLPT 語彙題庫（單字＋読み／語彙・wkei 資料）",
+      "levels": ["N5", "N4", "N3", "N2", "N1"],
+      "basePath": "data/packs/wkei-vocab",
+      "files": {
+        "vocab": "vocab.json",
+        "quizzes": "quizzes.json"
+      },
+      "features": {
+        "listening": false
+      }
+    }
+  ]
+}

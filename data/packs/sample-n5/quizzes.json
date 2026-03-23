@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "packId": "sample-n5",
+  "items": [
+    {
+      "id": "sample-n5-q-001",
+      "level": "N5",
+      "section": "vocab",
+      "jlptPart": "語彙・読み",
+      "type": "mc",
+      "question": "（語彙・読み）請選出「学生」的正確讀音。",
+      "choices": ["がくせい", "がっせい", "がくせ", "がくじょう"],
+      "correctIndex": 0,
+      "ttsQuestion": "学生",
+      "explanation": "「学」音讀為がく；「生」讀せい。正解：がくせい（學生）。"
+    },
+    {
+      "id": "sample-n5-q-002",
+      "level": "N5",
+      "section": "vocab",
+      "jlptPart": "語彙・語彙",
+      "type": "mc",
+      "question": "（語彙・語彙）請選出「本を読みます。」的正確意思。",
+      "choices": ["我讀書。", "我寫字。", "我買書。", "我借書。"],
+      "correctIndex": 0,
+      "ttsQuestion": "本を読みます",
+      "explanation": "読みます（よみます）為「讀」的禮貌形；本（ほん）為書。"
+    }
+  ]
+}

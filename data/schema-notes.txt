@@ -1,0 +1,44 @@
+JSON 欄位約定（擴充包作者參考）
+==============================
+
+registry.json
+  packs[].id          擴充包唯一 id，與資料夾名建議一致
+  packs[].basePath    相對於網站根目錄，如 data/packs/my-pack
+  packs[].files       可省略鍵；沒有的檔案不載入
+  packs[].features.listening  true 時 UI 可顯示聽力模式（仍需題目／音檔資料支援）
+
+vocab.json — items[]
+  id, level (N5|N4|N3|N2|N1)
+  word, reading, meaning, pos（詞性，可空字串）
+  audioWord, audioExample  相對網站根的路徑；空字串表示無音檔，按鈕隱藏
+  exampleJa, exampleReading, exampleZh
+
+grammar.json — items[]
+  id, level, title, summary
+  body  純文字，換行會轉成段落
+  examples[]  ja, reading, zh, audioPhrase（例句音檔路徑，可空）
+
+quizzes.json — items[]
+  id, level, type（目前使用 mc）
+  question, choices[], correctIndex（0 起算）, explanation（答後必顯示）
+
+reading.json — items[]
+  id, level, title
+  passageJa, passageReading, passageZh
+  questions[]  同 quizzes 的 MC 結構
+
+listening.json — items[]（擴充包可選）
+  id, level, title（可空）
+  audioPrompt  題幹音檔路徑，空字串則改以裝置 TTS
+  ttsQuestion  建議：純日文句子，供離線／無 MP3 時朗讀（優先於 question）
+  question     題目說明（可含中文）
+  choices[], correctIndex, explanation
+
+quizzes.json — items[]
+  section     "vocab" | "grammar"（缺省視為 vocab）
+  jlptPart    例：語彙・読み、語彙・語彙、文法・文の文法形式
+  ttsQuestion 題幹日文朗讀用（可空）
+
+registry 的 packs[].files.listening 指向此檔；features.listening: true 僅作標記用。
+
+播音：無 MP3 時按鈕會用瀏覽器日文語音（Web Speech）。完全離線時 iOS 可能需曾下載日文語音。

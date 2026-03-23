@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "packId": "sample-n5",
+  "items": [
+    {
+      "id": "sample-n5-l-001",
+      "level": "N5",
+      "title": "範例聽力題（無音檔）",
+      "audioPrompt": "",
+      "ttsQuestion": "きょうはあついです。",
+      "question": "此為聽力擴充題占位：有音檔時請填 audioPrompt 路徑，即可按「播放題目音檔」。下列何者正確？",
+      "choices": ["此為示範正解", "僅為占位選項", "請換成真題庫", "可刪除此題"],
+      "correctIndex": 0,
+      "explanation": "正式題庫請在擴充包內提供 MP3／M4A 等，並將路徑寫入 audioPrompt（相對網站根目錄）。"
+    }
+  ]
+}

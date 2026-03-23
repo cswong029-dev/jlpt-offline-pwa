@@ -1,0 +1,10 @@
+{
+  "name": "JLPT 離線自學",
+  "short_name": "JLPT",
+  "description": "離線 JLPT 文法、單字、測驗與閱讀",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1419",
+  "theme_color": "#1a5f4a",
+  "lang": "zh-Hant"
+}

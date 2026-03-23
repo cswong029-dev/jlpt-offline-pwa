@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "packId": "sample-n5",
+  "items": [
+    {
+      "id": "sample-n5-r-001",
+      "level": "N5",
+      "title": "週末",
+      "passageJa": "田中さんは週末、本を読みます。図書館へ行きます。",
+      "passageReading": "たなかさんはしゅうまつ、ほんをよみます。としょかんへいきます。",
+      "passageZh": "田中週末會讀書，會去圖書館。",
+      "questions": [
+        {
+          "question": "田中週末做什麼？",
+          "choices": ["讀書", "游泳", "看電影", "買東西"],
+          "correctIndex": 0,
+          "explanation": "文中寫「本を読みます」（讀書）。"
+        }
+      ]
+    }
+  ]
+}

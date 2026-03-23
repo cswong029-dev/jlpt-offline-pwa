@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1a5f4a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>JLPT 離線自學</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./css/app.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>JLPT 離線自學</h1>
+      <div class="search-row">
+        <input
+          type="search"
+          id="global-search"
+          placeholder="搜尋文法、單字、題目、閱讀…"
+          autocomplete="off"
+          enterkeyhint="search"
+        />
+      </div>
+      <p id="search-hint" class="sw-hint"></p>
+      <div id="search-pop" style="margin-top: 0.35rem"></div>
+      <p id="sw-hint" class="sw-hint"></p>
+    </header>
+    <nav class="nav-tabs" aria-label="主選單">
+      <button type="button" data-tab="grammar">文法</button>
+      <button type="button" data-tab="vocab">單字</button>
+      <button type="button" data-tab="quiz">測驗</button>
+      <button type="button" data-tab="reading">閱讀</button>
+      <button type="button" data-tab="review">複習</button>
+      <button type="button" data-tab="bookmarks">收藏</button>
+      <button type="button" data-tab="listening">聽力</button>
+      <button type="button" data-tab="settings">設定</button>
+    </nav>
+    <main id="main"></main>
+    <footer class="app-foot">離線資料載入自 data/ · 詳見 USAGE.txt</footer>
+    <script src="./js/storage.js"></script>
+    <script src="./js/data.js"></script>
+    <script src="./js/tts.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>
