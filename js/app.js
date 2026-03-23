@@ -287,6 +287,63 @@
     return !!JLPTStorage.getPrefs().furigana;
   }
 
+  function buildVocabExamples(it) {
+    const out = [];
+    const arr = Array.isArray(it.examples) ? it.examples : [];
+    arr.forEach((e) => {
+      out.push({
+        ja: e.ja || '',
+        reading: e.reading || '',
+        zh: e.zh || '',
+        audio: e.audioPhrase || e.audio || ''
+      });
+    });
+    if (it.exampleJa || it.exampleReading || it.exampleZh) {
+      out.unshift({
+        ja: it.exampleJa || '',
+        reading: it.exampleReading || '',
+        zh: it.exampleZh || '',
+        audio: it.audioExample || ''
+      });
+    }
+    const seed = (it.word || it.reading || 'この言葉').trim();
+    const fallback = {
+      ja: `${seed}を覚えて使ってみましょう。`,
+      reading: `${seed}をおぼえてつかってみましょう。`,
+      zh: `請把「${seed}」記起來並試著使用。`,
+      audio: ''
+    };
+    while (out.length < 2) out.push(fallback);
+    return out.slice(0, 2);
+  }
+
+  function extractQuotedTerm(text) {
+    const s = String(text || '');
+    const m = s.match(/「([^」]+)」/);
+    return m ? m[1].trim() : '';
+  }
+
+  function buildQuizVocabExamples(q) {
+    const term = extractQuotedTerm(q.question) || (q.ttsQuestion || '').trim();
+    const v = state.merged.vocab.find((x) => (x.word || '').trim() === term);
+    if (v) return buildVocabExamples(v);
+    const seed = term || 'この語彙';
+    return [
+      {
+        ja: `${seed}はJLPTでよく出る語です。`,
+        reading: '',
+        zh: `「${seed}」是 JLPT 常見詞彙。`,
+        audio: ''
+      },
+      {
+        ja: `${seed}の意味を文脈で確認しましょう。`,
+        reading: '',
+        zh: `請在語境中確認「${seed}」的意思。`,
+        audio: ''
+      }
+    ];
+  }
+
   function renderVocabView(prefs) {
     const list = filteredVocab();
     if (!list.length) {
@@ -308,7 +365,9 @@
       sub = it.word && it.word !== it.reading ? it.word : '';
     }
     const aw = it.audioWord && String(it.audioWord).trim();
-    const ae = it.audioExample && String(it.audioExample).trim();
+    const examples = buildVocabExamples(it);
+    const ex1 = examples[0];
+    const ex2 = examples[1];
     const fav = JLPTStorage.isFavorite('vocab', it.id);
     const inSrs = JLPTStorage.hasSrsVocab(it.id);
     const dueIds = new Set(JLPTStorage.getDueVocabIds());
@@ -324,20 +383,30 @@
             ? `<p class="muted" style="font-size:0.85rem;">原文釋義（英）：${esc(it.meaningEn)}</p>`
             : ''
         }
-        <p class="reading-passage">${esc(it.exampleJa || '')}</p>
-        ${
-          prefs.furigana
-            ? `<p class="reading-ruby">${esc(it.exampleReading || '')}</p>`
-            : ''
-        }
-        <p class="muted">${esc(it.exampleZh || '')}</p>
+        <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
+          <p class="reading-passage">${esc(ex1.ja || '')}</p>
+          ${prefs.furigana ? `<p class="reading-ruby">${esc(ex1.reading || '')}</p>` : ''}
+          <p class="muted">${esc(ex1.zh || '')}</p>
+          <div class="btn-row">
+            <button type="button" class="btn" data-act="play" data-src="${esc(ex1.audio || '')}" data-tts="${esc(
+      (ex1.reading || ex1.ja || '').trim()
+    )}" ${!ex1.ja && !ex1.reading ? 'disabled' : ''}>例句1（MP3 或語音）</button>
+          </div>
+        </div>
+        <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
+          <p class="reading-passage">${esc(ex2.ja || '')}</p>
+          ${prefs.furigana ? `<p class="reading-ruby">${esc(ex2.reading || '')}</p>` : ''}
+          <p class="muted">${esc(ex2.zh || '')}</p>
+          <div class="btn-row">
+            <button type="button" class="btn" data-act="play" data-src="${esc(ex2.audio || '')}" data-tts="${esc(
+      (ex2.reading || ex2.ja || '').trim()
+    )}" ${!ex2.ja && !ex2.reading ? 'disabled' : ''}>例句2（MP3 或語音）</button>
+          </div>
+        </div>
         <div class="btn-row">
           <button type="button" class="btn" data-act="play" data-src="${esc(aw)}" data-tts="${esc(
       (it.reading || it.word || '').trim()
     )}">單字讀音（MP3 或語音）</button>
-          <button type="button" class="btn" data-act="play" data-src="${esc(ae)}" data-tts="${esc(
-      (it.exampleReading || it.exampleJa || '').trim()
-    )}" ${!it.exampleJa && !it.exampleReading ? 'disabled' : ''}>例句（MP3 或語音）</button>
         </div>
         <div class="btn-row">
           <button type="button" class="btn" data-act="vocab-prev">上一個</button>
@@ -396,6 +465,7 @@
     const fav = JLPTStorage.isFavorite('quiz', q.id);
     const ttsQ = (q.ttsQuestion || '').trim();
     const jlptLine = q.jlptPart ? `<span class="muted">【${esc(q.jlptPart)}】</span> ` : '';
+    const vocabEx = branch === 'vocab' ? buildQuizVocabExamples(q) : [];
     return `
       <section class="panel">
         <h2>模擬測驗 · ${esc(branchLabel)}</h2>
@@ -415,6 +485,32 @@
     }>聽題幹（日文語音）</button>
         </div>
         <p class="reading-passage" style="margin-top:0.75rem;">${esc(q.question)}</p>
+        ${
+          branch === 'vocab'
+            ? `<div class="panel" style="box-shadow:none;margin:0.5rem 0;">
+          <p class="muted" style="margin:0 0 0.35rem;"><strong>例句1</strong></p>
+          <p class="reading-passage">${esc(vocabEx[0].ja || '')}</p>
+          <p class="reading-ruby">${esc(vocabEx[0].reading || '')}</p>
+          <p class="muted">${esc(vocabEx[0].zh || '')}</p>
+          <div class="btn-row">
+            <button type="button" class="btn" data-act="play" data-src="${esc(vocabEx[0].audio || '')}" data-tts="${esc(
+                (vocabEx[0].reading || vocabEx[0].ja || '').trim()
+              )}" ${!vocabEx[0].ja && !vocabEx[0].reading ? 'disabled' : ''}>聽例句1（MP3 或語音）</button>
+          </div>
+        </div>
+        <div class="panel" style="box-shadow:none;margin:0.5rem 0;">
+          <p class="muted" style="margin:0 0 0.35rem;"><strong>例句2</strong></p>
+          <p class="reading-passage">${esc(vocabEx[1].ja || '')}</p>
+          <p class="reading-ruby">${esc(vocabEx[1].reading || '')}</p>
+          <p class="muted">${esc(vocabEx[1].zh || '')}</p>
+          <div class="btn-row">
+            <button type="button" class="btn" data-act="play" data-src="${esc(vocabEx[1].audio || '')}" data-tts="${esc(
+                (vocabEx[1].reading || vocabEx[1].ja || '').trim()
+              )}" ${!vocabEx[1].ja && !vocabEx[1].reading ? 'disabled' : ''}>聽例句2（MP3 或語音）</button>
+          </div>
+        </div>`
+            : ''
+        }
         <div>${choices.join('')}</div>
         ${
           state.quizLocked

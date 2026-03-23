@@ -1,6 +1,6 @@
 /* 更新擴充包或核心檔後，請 bump 版本以刷新快取 */
 /* wkei-vocab 大型 JSON 不預載，首次連線後由 fetch 寫入快取 */
-const CACHE_NAME = 'jlpt-offline-v12';
+const CACHE_NAME = 'jlpt-offline-v13';
 
 const CORE_URLS = [
   './index.html',
